@@ -791,6 +791,23 @@ document.getElementById('ov-cand').addEventListener('click', function(e) {
 
 // ── INIT ─────────────────────────────────────────
 fbLoadAll();
+
+// ── EXPOSE TO WINDOW (required for onclick in module scope) ──
+window.goTo    = goTo;
+window.chgWk   = chgWk;
+window.goNow   = goNow;
+window.doSearch= doSearch;
+window.doSF    = doSF;
+window.selCand = selCand;
+window.doSt    = doSt;
+window.upd     = upd;
+window.togF    = togF;
+window.openGcal= openGcal;
+window.openAdd = openAdd;
+window.openEdit= openEdit;
+window.closeOv = closeOv;
+window.doSave  = doSave;
+window.doDel   = doDel;
 </script>
 </body>
 </html>
