@@ -248,6 +248,7 @@ header h1{font-size:.92rem;font-weight:700}
   <div class="nav-tab" onclick="goTo('hf')">👥 Hugo &amp; Felipe</div>
   <div class="nav-tab" onclick="goTo('lucas')">👤 Lucas</div>
   <div class="nav-tab" onclick="goTo('victor')">👤 Victor</div>
+  <div class="nav-tab" onclick="goTo('tasks')">📌 Tarefas<span id="tasks-badge" style="display:none;background:#e53e3e;color:#fff;border-radius:99px;font-size:.65rem;padding:1px 6px;margin-left:5px;font-weight:700"></span></div>
 </div>
 
 <!-- DASHBOARD -->
@@ -335,6 +336,22 @@ header h1{font-size:.92rem;font-weight:700}
   </div>
 </div>
 
+<!-- TASKS PAGE -->
+<div class="page" id="pg-tasks">
+  <div style="padding:16px;max-width:800px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <h2 style="font-size:1rem;font-weight:700;color:#1e3a5f">📌 Tarefas & Lembretes</h2>
+      <button class="btn-add" style="width:auto;padding:8px 16px" onclick="openAddTask(null,null)">+ Nova tarefa</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button onclick="setTaskFilter('pending')" id="tf-pending" class="btn-save" style="font-size:.78rem;padding:6px 12px">Pendentes</button>
+      <button onclick="setTaskFilter('today')" id="tf-today" style="font-size:.78rem;padding:6px 12px;background:#e2e8f0;color:#4a5568;border:none;border-radius:7px;cursor:pointer">Hoje</button>
+      <button onclick="setTaskFilter('done')" id="tf-done" style="font-size:.78rem;padding:6px 12px;background:#e2e8f0;color:#4a5568;border:none;border-radius:7px;cursor:pointer">Concluídas</button>
+    </div>
+    <div id="tasks-list"></div>
+  </div>
+</div>
+
 <!-- MODAL CANDIDATO -->
 <div class="ov" id="ov-cand">
   <div class="modal">
@@ -412,6 +429,24 @@ header h1{font-size:.92rem;font-weight:700}
   </div>
 </div>
 
+<!-- MODAL TAREFA -->
+<div class="ov" id="ov-task">
+  <div class="modal" style="max-width:420px">
+    <h2 id="task-modal-title">📌 Nova Tarefa</h2>
+    <div id="task-cand-info" style="font-size:.8rem;color:#718096;margin-bottom:10px;background:#f7fafc;padding:8px 10px;border-radius:6px;display:none"></div>
+    <div class="mfg">
+      <div class="mfld full"><label>Descrição *</label><input type="text" id="t-desc" placeholder="Ex: Cliente pediu para ligar"></div>
+      <div class="mfld"><label>Data</label><input type="date" id="t-date"></div>
+      <div class="mfld"><label>Horário</label><input type="time" id="t-time"></div>
+    </div>
+    <div class="mfooter">
+      <button class="btn-cancel" onclick="closeOv('ov-task')">Cancelar</button>
+      <button id="t-del" class="btn-del" onclick="deleteTask()" style="display:none">Excluir</button>
+      <button class="btn-save" onclick="saveTask()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -473,10 +508,14 @@ let scriptBase = null, scriptId = null;
 let waBase = null, waId = null, waType = null;
 let waExtraData = {};
 let fbListeners = {};
+let TASKS = []; // [{id, candId, candBase, candNome, text, date, time, done, created}]
 
 // ── FIREBASE ─────────────────────────────────────
 async function fbSave(b) {
   try { await setDoc(doc(db,'bases',b), {data: JSON.stringify(DB[b])}); } catch(e) { console.error(e); }
+}
+async function fbSaveTasks() {
+  try { await setDoc(doc(db,'config','tasks'), {data: JSON.stringify(TASKS)}); } catch(e) { console.error(e); }
 }
 function fbListen(b) {
   if (fbListeners[b]) return;
@@ -505,9 +544,16 @@ async function fbLoadAll() {
       DB[b] = JSON.parse(JSON.stringify(raw[b]));
     }
   }
+  // Load tasks
+  try {
+    const tsnap = await getDoc(doc(db,'config','tasks'));
+    if(tsnap.exists()) TASKS = JSON.parse(tsnap.data().data);
+  } catch(e) { TASKS = []; }
+
   document.getElementById('loading-ov').style.display = 'none';
   for (const b of ['hf','lucas','victor']) fbListen(b);
   renderDash();
+  renderTasksBadge();
 }
 function dbSave(b) { fbSave(b); }
 
@@ -882,7 +928,8 @@ function openGcal(b,id){
     'Líder: '+(ldr?ldr.name:'—'),'Emprego: '+(c.emprego_atual||'—'),
     'Salário: '+(c.salario||'—'),'Idade: '+(c.idade||'—'),
     'Cidade: '+(c.cidade||'—'),'Modelo: '+(c.modelo_contratacao||'—'),
-    'Link: '+(ldr?ldr.link_f1:'—'),
+    'LinkedIn: '+(c.linkedin||'—'),
+    'Link reunião: '+(ldr?ldr.link_f1:'—'),
   ].join('\n'));
   const guest = ldr ? encodeURIComponent(ldr.email) : '';
   const guestParam = guest ? '&add='+guest : '';
@@ -1204,18 +1251,19 @@ function doDel(){
 }
 
 // ── TABS ─────────────────────────────────────────
-const PAGES=['dash','hf','lucas','victor'];
+const PAGES=['dash','hf','lucas','victor','tasks'];
 function goTo(p){
   document.querySelectorAll('.nav-tab').forEach((el,i)=>el.classList.toggle('active',PAGES[i]===p));
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('pg-'+p).classList.add('active');
+  if(p==='tasks'){renderTasks();return;}
   if(p!=='dash')renderList(p);
 }
 
 // ── OVERLAY ──────────────────────────────────────
 function openOv(id){document.getElementById(id).classList.add('open');}
 function closeOv(id){document.getElementById(id).classList.remove('open');}
-['ov-cand','ov-script','ov-wa','ov-email'].forEach(id=>{
+['ov-cand','ov-script','ov-wa','ov-email','ov-task'].forEach(id=>{
   document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeOv(id);});
 });
 
@@ -1226,6 +1274,10 @@ function gv(id){return(document.getElementById(id)||{value:''}).value.trim();}
 
 // ── EXPOSE TO WINDOW ─────────────────────────────
 window.goTo=goTo;window.chgWk=chgWk;window.goNow=goNow;
+window.openAddTask=openAddTask;window.openEditTask=openEditTask;
+window.saveTask=saveTask;window.deleteTask=deleteTask;
+window.toggleTask=toggleTask;window.taskToGcal=taskToGcal;
+window.setTaskFilter=setTaskFilter;
 window.doSearch=doSearch;window.doSF=doSF;window.selCand=selCand;
 window.doSt=doSt;window.upd=upd;window.togF=togF;
 window.openGcal=openGcal;window.openEmailLider=openEmailLider;
