@@ -464,7 +464,7 @@ const ORDER    = {ag:0, ret:1, nv:2, in:3};
 
 // ── STATE ────────────────────────────────────────
 let DB  = {hf:[], lucas:[], victor:[]};
-let SF  = {hf:'', lucas:'', victor:''};
+let SF  = {hf:new Set(), lucas:new Set(), victor:new Set()};
 let SQ  = {hf:'', lucas:'', victor:''};
 let SEL = {hf:null, lucas:null, victor:null};
 let wkOff = 0;
@@ -546,7 +546,10 @@ function stCode(c) {
   return'nv';
 }
 function getLider(c, b) {
-  if(b==='hf') return LEADERS.find(l=>l.name===(c.lider_reuniao||'')) || null;
+  if(b==='hf') {
+    const found = LEADERS.find(l=>l.name===(c.lider_reuniao||''));
+    return found || LEADERS.find(l=>l.id==='hugo'); // default Hugo for HF
+  }
   if(b==='lucas') return LEADERS.find(l=>l.id==='lucas');
   if(b==='victor') return LEADERS.find(l=>l.id==='victor');
   return null;
@@ -607,9 +610,9 @@ function renderDash() {
 
 // ── LIST ─────────────────────────────────────────
 function getList(b) {
-  const sf=SF[b],sq=SQ[b].toLowerCase();
+  const sq=SQ[b].toLowerCase();
   return DB[b].filter(c=>{
-    if(sf&&stCode(c)!==sf)return false;
+    if(SF[b].size>0&&!SF[b].has(stCode(c)))return false;
     if(sq&&![(c.nome||''),(c.telefone||''),(c.cidade||''),(c.emprego_atual||'')].join(' ').toLowerCase().includes(sq))return false;
     return true;
   }).sort((a,b2)=>{
@@ -637,10 +640,19 @@ function renderList(b) {
 }
 function doSearch(b,v){SQ[b]=v;renderList(b);}
 function doSF(b,v){
-  SF[b]=v;
+  if(v===''){
+    // "Todos" clears all
+    SF[b]=new Set();
+  } else {
+    if(SF[b].has(v)) SF[b].delete(v);
+    else SF[b].add(v);
+  }
+  // Update button states
   document.querySelectorAll('#sfr-'+b+' .sf').forEach(el=>{
     const m=el.getAttribute('onclick').match(/'([^']*)'\s*\)\s*$/);
-    el.classList.toggle('on',(m?m[1]:'')===v);
+    const elv=m?m[1]:'';
+    if(elv==='') el.classList.toggle('on', SF[b].size===0);
+    else el.classList.toggle('on', SF[b].has(elv));
   });
   renderList(b);
 }
@@ -872,7 +884,9 @@ function openGcal(b,id){
     'Cidade: '+(c.cidade||'—'),'Modelo: '+(c.modelo_contratacao||'—'),
     'Link: '+(ldr?ldr.link_f1:'—'),
   ].join('\n'));
-  window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+dt+'T'+hora+'00/'+dt+'T'+hEnd+mEnd+'00&details='+det,'_blank');
+  const guest = ldr ? encodeURIComponent(ldr.email) : '';
+  const guestParam = guest ? '&add='+guest : '';
+  window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+dt+'T'+hora+'00/'+dt+'T'+hEnd+mEnd+'00&details='+det+guestParam,'_blank');
 }
 
 // ── EMAIL LÍDER ──────────────────────────────────
