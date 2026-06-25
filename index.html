@@ -337,36 +337,28 @@ header h1{font-size:.92rem;font-weight:700}
 </div>
 
 
-<div class="page" id="pg-tasks">
-  <div style="padding:16px;max-width:800px;margin:0 auto">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-      <h2 style="font-size:1rem;font-weight:700;color:#1e3a5f">📌 Tarefas &amp; Lembretes</h2>
-      <button class="btn-add" style="width:auto;padding:8px 16px" onclick="openAddTask(null,null)">+ Nova tarefa</button>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-      <button onclick="setTaskFilter('pending')" id="tf-pending" class="btn-save" style="font-size:.78rem;padding:6px 12px">Pendentes</button>
-      <button onclick="setTaskFilter('today')" id="tf-today" style="font-size:.78rem;padding:6px 12px;background:#e2e8f0;color:#4a5568;border:none;border-radius:7px;cursor:pointer">Hoje</button>
-      <button onclick="setTaskFilter('done')" id="tf-done" style="font-size:.78rem;padding:6px 12px;background:#e2e8f0;color:#4a5568;border:none;border-radius:7px;cursor:pointer">Concluídas</button>
-    </div>
-    <div id="tasks-list"></div>
-  </div>
+<div class="page" id="pg-tasks"><div style="padding:16px;max-width:800px;margin:0 auto">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+<h2 style="font-size:1rem;font-weight:700;color:#1e3a5f">📌 Tarefas &amp; Lembretes</h2>
+<button class="btn-add" style="width:auto;padding:8px 16px" onclick="openAddTask(null,null)">+ Nova tarefa</button></div>
+<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+<button onclick="setTaskFilter('pending')" id="tf-pending" class="btn-save" style="font-size:.78rem;padding:6px 12px">Pendentes</button>
+<button onclick="setTaskFilter('today')" id="tf-today" style="font-size:.78rem;padding:6px 12px;background:#e2e8f0;color:#4a5568;border:none;border-radius:7px;cursor:pointer">Hoje</button>
+<button onclick="setTaskFilter('done')" id="tf-done" style="font-size:.78rem;padding:6px 12px;background:#e2e8f0;color:#4a5568;border:none;border-radius:7px;cursor:pointer">Concluídas</button>
+</div><div id="tasks-list"></div></div></div>
+<div class="ov" id="ov-task"><div class="modal" style="max-width:420px">
+<h2 id="task-modal-title">Nova Tarefa</h2>
+<div id="task-cand-info" style="font-size:.8rem;color:#718096;margin-bottom:10px;background:#f7fafc;padding:8px 10px;border-radius:6px;display:none"></div>
+<div class="mfg">
+<div class="mfld full"><label>Descrição *</label><input type="text" id="t-desc" placeholder="Ex: Candidato pediu para ligar amanhã"></div>
+<div class="mfld"><label>Data</label><input type="date" id="t-date"></div>
+<div class="mfld"><label>Horário</label><input type="time" id="t-time"></div>
 </div>
-<div class="ov" id="ov-task">
-  <div class="modal" style="max-width:420px">
-    <h2 id="task-modal-title">Nova Tarefa</h2>
-    <div id="task-cand-info" style="font-size:.8rem;color:#718096;margin-bottom:10px;background:#f7fafc;padding:8px 10px;border-radius:6px;display:none"></div>
-    <div class="mfg">
-      <div class="mfld full"><label>Descrição *</label><input type="text" id="t-desc" placeholder="Ex: Candidato pediu para ligar amanhã"></div>
-      <div class="mfld"><label>Data</label><input type="date" id="t-date"></div>
-      <div class="mfld"><label>Horário</label><input type="time" id="t-time"></div>
-    </div>
-    <div class="mfooter">
-      <button class="btn-cancel" onclick="closeOv('ov-task')">Cancelar</button>
-      <button id="t-del" class="btn-del" onclick="deleteTask()" style="display:none">Excluir</button>
-      <button class="btn-save" onclick="saveTask()">Salvar</button>
-    </div>
-  </div>
-</div>
+<div class="mfooter">
+<button class="btn-cancel" onclick="closeOv('ov-task')">Cancelar</button>
+<button id="t-del" class="btn-del" onclick="deleteTask()" style="display:none">Excluir</button>
+<button class="btn-save" onclick="saveTask()">Salvar</button>
+</div></div></div>
 <!-- MODAL CANDIDATO -->
 <div class="ov" id="ov-cand">
   <div class="modal">
@@ -514,8 +506,8 @@ let taskCandBase=null,taskCandId=null;
 async function fbSave(b) {
   try { await setDoc(doc(db,'bases',b), {data: JSON.stringify(DB[b])}); } catch(e) { console.error(e); }
 }
-async function fbSaveTasks() {
-  try { await setDoc(doc(db,'config','tasks'), {data: JSON.stringify(TASKS)}); } catch(e) {console.error(e);} 
+async function fbSaveTasks(){
+  try{await setDoc(doc(db,'config','tasks'),{data:JSON.stringify(TASKS)});}catch(e){console.error(e);}
 }
 function fbListen(b) {
   if (fbListeners[b]) return;
@@ -545,8 +537,8 @@ async function fbLoadAll() {
     }
   }
   try{const ts=await getDoc(doc(db,'config','tasks'));if(ts.exists())TASKS=JSON.parse(ts.data().data);}catch(e){TASKS=[];}
-  document.getElementById('loading-ov').style.display = 'none';
-  for (const b of ['hf','lucas','victor']) fbListen(b);
+  document.getElementById('loading-ov').style.display='none';
+  for(const b of ['hf','lucas','victor'])fbListen(b);
   renderDash();
   renderTasksBadge();
 }
@@ -682,9 +674,9 @@ function doSF(b,v){
   else{if(SF[b].has(v))SF[b].delete(v);else SF[b].add(v);}
   document.querySelectorAll('#sfr-'+b+' .sf').forEach(el=>{
     const m=el.getAttribute('onclick').match(/'([^']*)'\s*\)\s*$/);
-    const elv=m?m[1]:'';
-    if(elv==='')el.classList.toggle('on',SF[b].size===0);
-    else el.classList.toggle('on',SF[b].has(elv));
+    const ev=m?m[1]:'';
+    if(ev==='')el.classList.toggle('on',SF[b].size===0);
+    else el.classList.toggle('on',SF[b].has(ev));
   });
   renderList(b);
 }
@@ -828,14 +820,14 @@ function openWA(b,id,type){
 
   if(type==='pedido_ligacao'){
     document.getElementById('wa-title').textContent='📞 Pedido de ligação';
-    preview=per+', *'+c.nome+'*! Tudo bem?\nMe chamo Alice e sou headhunter do '+ldr.name+', da Metlife. Estou entrando em contato porque temos uma oportunidade profissional que acredito estar muito alinhada com o seu perfil.\nVocê teria 5 min para conversarmos por telefone? É uma ligação rápida, só pra te apresentar melhor a proposta.';
+    preview=per+', '+c.nome+'! Tudo bem?\nMe chamo Alice e sou headhunter do '+ldr.name+', da Metlife. Estou entrando em contato porque temos uma oportunidade profissional que acredito estar muito alinhada com o seu perfil.\nVocê teria 5 min para conversarmos por telefone? É uma ligação rápida, só pra te apresentar melhor a proposta.';
     extra='';
   }
   else if(type==='confirmacao_f1'){
     document.getElementById('wa-title').textContent='✅ Confirmação F1';
     const hora=c.hora_reuniao||'—';
     const link=ldr.link_f1;
-    preview=per+', *'+c.nome+'*! Tudo bem?\nEspero que esteja tudo bem com você.\nAqui é a Alice, Headhunter do '+ldr.name+' na MetLife. Estou passando para confirmar se está tudo certo para a nossa reunião de hoje às '+hora+' com o '+ldr.name+'.\n'+(link?'Segue o link da sala para acesso:\n'+link+'\n':'')+'Fico à disposição caso precise de algo.\nAté mais!';
+    preview=per+', '+c.nome+'! Tudo bem?\nEspero que esteja tudo bem com você.\nAqui é a Alice, Headhunter do '+ldr.name+' na MetLife. Estou passando para confirmar se está tudo certo para a nossa reunião de hoje às '+hora+' com o '+ldr.name+'.\n'+(link?'Segue o link da sala para acesso:\n'+link+'\n':'')+'Fico à disposição caso precise de algo.\nAté mais!';
     extra='';
   }
   else if(type==='link_pbi'){
@@ -847,16 +839,16 @@ function openWA(b,id,type){
       waExtraData={tipo:'hf',ldr,nome,c};
       preview=buildPBIMsgHF(ldr,nome,c,'terça');
     } else if(b==='lucas'){
-      preview='Olá, *'+c.nome+'*! Tudo bem?\nComo conversamos, segue o link da reunião de quarta-feira, referente as informações da oportunidade na Metlife através do app Zoom.\n*Horário: 19h*\n*Sugestão de vestimenta: Social.*\nCaso você tenha algum imprevisto me avise com antecedência por gentileza.\nQuando acabar a reunião me da um Feedback do que achou, tudo bem?\nAguardo seu retorno.\nLink PBI:\n'+ldr.link_pbi;
+      preview='Olá, '+c.nome+'! Tudo bem?\nComo conversamos, segue o link da reunião de quarta-feira, referente as informações da oportunidade na Metlife através do app Zoom.\n*Horário: 19h*\n*Sugestão de vestimenta: Social.*\nCaso você tenha algum imprevisto me avise com antecedência por gentileza.\nQuando acabar a reunião me da um Feedback do que achou, tudo bem?\nAguardo seu retorno.\nLink PBI:\n'+ldr.link_pbi;
       extra='';
     } else {
-      preview='Olá, *'+c.nome+'*! Tudo bem?\nComo conversamos, segue o link da reunião de hoje referente as informações da oportunidade na Metlife através do app Zoom.\n*Horário: 19h*\n*Sugestão de vestimenta: Social.*\nCaso você tenha algum imprevisto me avise com antecedência por gentileza.\nQuando acabar a reunião me da um Feedback do que achou, tudo bem?\nAguardo seu retorno.\nLink PBI:\n'+ldr.link_pbi;
+      preview='Olá, '+c.nome+'! Tudo bem?\nComo conversamos, segue o link da reunião de hoje referente as informações da oportunidade na Metlife através do app Zoom.\n*Horário: 19h*\n*Sugestão de vestimenta: Social.*\nCaso você tenha algum imprevisto me avise com antecedência por gentileza.\nQuando acabar a reunião me da um Feedback do que achou, tudo bem?\nAguardo seu retorno.\nLink PBI:\n'+ldr.link_pbi;
       extra='';
     }
   }
   else if(type==='pos_pbi'){
     document.getElementById('wa-title').textContent='💬 Pós-PBI';
-    preview=per+', *'+c.nome+'*! Tudo bem? Aqui é a Alice, headhunter do líder '+ldr.name+'.\nComo foi o PBI ontem? Você gostou?';
+    preview=per+', '+c.nome+'! Tudo bem? Aqui é a Alice, headhunter do líder '+ldr.name+'.\nComo foi o PBI ontem? Você gostou?';
     extra='';
   }
   else if(type==='remarcar'){
@@ -873,10 +865,10 @@ function openWA(b,id,type){
 }
 
 function buildPBIMsgHF(ldr,nome,c,dias){
-  return'Olá, *'+c.nome+'*!\nSegue o link para seu acesso na apresentação da Metlife de '+dias+', às 19h.\nApresentação será feita por Mauro Rick.\nAbaixo reforço também as mesmas orientações anteriores para sua atenção:\n✔️ Conectar-se às 18h50\n✔️ Estar trajada adequadamente para uma reunião de negócios\n✔️ Evitar fazer refeições durante a apresentação\n✔️ Fazer a conexão do seu NOTEBOOK\n✔️ Deixar a câmera ligada durante todo o tempo.\nEstou à disposição para tirar suas dúvidas e receber seu feedback.\n'+ldr.link_pbi;
+  return'Olá, '+c.nome+'!\nSegue o link para seu acesso na apresentação da Metlife de '+dias+', às 19h.\nApresentação será feita por Mauro Rick.\nAbaixo reforço também as mesmas orientações anteriores para sua atenção:\n✔️ Conectar-se às 18h50\n✔️ Estar trajada adequadamente para uma reunião de negócios\n✔️ Evitar fazer refeições durante a apresentação\n✔️ Fazer a conexão do seu NOTEBOOK\n✔️ Deixar a câmera ligada durante todo o tempo.\nEstou à disposição para tirar suas dúvidas e receber seu feedback.\n'+ldr.link_pbi;
 }
 function buildReagendarMsg(ldr,nomeCompleto,horaAntiga,novoHorario){
-  return'Boa tarde, *'+nomeCompleto+'*. Tudo bem?\nSou a Alice, headhunter do líder '+ldr.name+', da MetLife. Havíamos combinado uma reunião com o '+ldr.name+' às '+horaAntiga+', mas, infelizmente, ele teve um imprevisto e não poderá atendê-lo nesse horário.\nPodemos reagendar para '+novoHorario+'?';
+  return'Boa tarde, '+nomeCompleto+'. Tudo bem?\nSou a Alice, headhunter do líder '+ldr.name+', da MetLife. Havíamos combinado uma reunião com o '+ldr.name+' às '+horaAntiga+', mas, infelizmente, ele teve um imprevisto e não poderá atendê-lo nesse horário.\nPodemos reagendar para '+novoHorario+'?';
 }
 
 function updateWAPreview(){
@@ -918,8 +910,8 @@ function openGcal(b,id){
     'LinkedIn: '+(c.linkedin||'—'),
     'Link reunião: '+(ldr?ldr.link_f1:'—'),
   ].join('\n'));
-  const guestParam=ldr&&ldr.email?'&add='+encodeURIComponent(ldr.email):'';
-  window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+dt+'T'+hora+'00/'+dt+'T'+hEnd+mEnd+'00&details='+det+guestParam,'_blank');
+  const gp=ldr&&ldr.email?'&add='+encodeURIComponent(ldr.email):'';
+  window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+dt+'T'+hora+'00/'+dt+'T'+hEnd+mEnd+'00&details='+det+gp,'_blank');
 }
 
 // ── EMAIL LÍDER ──────────────────────────────────
@@ -1237,26 +1229,21 @@ function doDel(){
 }
 
 
-function renderTasksBadge(){const n=TASKS.filter(t=>!t.done).length;const b=document.getElementById('tasks-badge');if(b){if(n>0){b.textContent=n;b.style.display='inline';}else b.style.display='none';}}
-function setTaskFilter(f){taskFilter=f;['pending','today','done'].forEach(k=>{const btn=document.getElementById('tf-'+k);if(btn){btn.style.background=k===f?'#1e3a5f':'#e2e8f0';btn.style.color=k===f?'#fff':'#4a5568';}});renderTasks();}
+function renderTasksBadge(){var n=TASKS.filter(function(t){return!t.done;}).length;var b=document.getElementById('tasks-badge');if(b){if(n>0){b.textContent=n;b.style.display='inline';}else b.style.display='none';}}
+function setTaskFilter(f){taskFilter=f;['pending','today','done'].forEach(function(k){var btn=document.getElementById('tf-'+k);if(btn){btn.style.background=k===f?'#1e3a5f':'#e2e8f0';btn.style.color=k===f?'#fff':'#4a5568';}});renderTasks();}
 function renderTasks(){
-  const today=new Date().toISOString().slice(0,10);
-  let list=TASKS.filter(t=>{if(taskFilter==='pending')return!t.done;if(taskFilter==='today')return!t.done&&t.date===today;if(taskFilter==='done')return t.done;return true;}).sort((a,b2)=>{if(a.done!==b2.done)return a.done?1:-1;if(a.date&&b2.date)return a.date.localeCompare(b2.date);return 0;});
-  const el=document.getElementById('tasks-list');
-  if(!list.length){el.innerHTML='<div style="text-align:center;padding:40px;color:#a0aec0;font-size:.88rem">Nenhuma tarefa</div>';return;}
-  el.innerHTML=list.map(t=>{
-    const isOverdue=!t.done&&t.date&&t.date<today;
-    const dateStr=t.date?fmtD(t.date)+(t.time?' às '+t.time:''):'Sem data';
-    const candStr=t.candNome?'<span style="font-size:.72rem;color:#718096">👤 '+esc(t.candNome)+'</span>':'';
-    return'<div style="background:#fff;border-radius:9px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.07);display:flex;align-items:flex-start;gap:10px;opacity:'+(t.done?'.5':'1')+'">'
-      +'<input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTask(''+t.id+'')" style="margin-top:3px;width:16px;height:16px;cursor:pointer">'
-      +'<div style="flex:1"><div style="font-weight:600;font-size:.85rem;text-decoration:'+(t.done?'line-through':'none')+';color:'+(isOverdue?'#e53e3e':'#1a202c')+'">'+esc(t.text)+'</div>'
-      +'<div style="font-size:.75rem;color:'+(isOverdue?'#e53e3e':'#718096')+';margin-top:3px">'+dateStr+(isOverdue?' ⚠️ Atrasada':'')+'</div>'
-      +(candStr?'<div style="margin-top:3px">'+candStr+'</div>':'')+'</div>'
-      +'<div style="display:flex;gap:6px;flex-shrink:0">'
-        +(t.date?'<button onclick="taskToGcal(''+t.id+'')" style="background:#4285f4;color:#fff;border:none;border-radius:5px;padding:4px 8px;font-size:.7rem;cursor:pointer">📅</button>':'')
-        +'<button onclick="openEditTask(''+t.id+'')" style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:5px;padding:4px 8px;font-size:.7rem;cursor:pointer">✏️</button>'
-      +'</div></div>';
+  var today=new Date().toISOString().slice(0,10);
+  var list=TASKS.filter(function(t){if(taskFilter==='pending')return!t.done;if(taskFilter==='today')return!t.done&&t.date===today;if(taskFilter==='done')return t.done;return true;}).sort(function(a,b2){if(a.done!==b2.done)return a.done?1:-1;if(a.date&&b2.date)return a.date.localeCompare(b2.date);return 0;});
+  var el=document.getElementById('tasks-list');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:40px;color:#a0aec0">Nenhuma tarefa</div>';return;}
+  el.innerHTML=list.map(function(t){
+    var io=!t.done&&t.date&&t.date<today;
+    var ds=t.date?fmtD(t.date)+(t.time?' as '+t.time:''):'Sem data';
+    var cp=t.candNome?'<div style="margin-top:3px"><span style="font-size:.72rem;color:#718096">'+String.fromCodePoint(0x1F464)+' '+esc(t.candNome)+'</span></div>':'';
+    var cb=t.date?'<button onclick="taskToGcal(\''+t.id+'\')" style="background:#4285f4;color:#fff;border:none;border-radius:5px;padding:4px 8px;font-size:.7rem;cursor:pointer">'+String.fromCodePoint(0x1F4C5)+'</button>':'';
+    var eb='<button onclick="openEditTask(\''+t.id+'\')" style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:5px;padding:4px 8px;font-size:.7rem;cursor:pointer">'+String.fromCodePoint(0x270F)+'</button>';
+    var ck='<input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTask(\''+t.id+'\')" style="margin-top:3px;width:16px;height:16px;cursor:pointer">';
+    return '<div style="background:#fff;border-radius:9px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.07);display:flex;align-items:flex-start;gap:10px;opacity:'+(t.done?'.5':'1')+'">'+ck+'<div style="flex:1"><div style="font-weight:600;font-size:.85rem;text-decoration:'+(t.done?'line-through':'none')+';color:'+(io?'#e53e3e':'#1a202c')+'">'+esc(t.text)+'</div><div style="font-size:.75rem;color:'+(io?'#e53e3e':'#718096')+';margin-top:3px">'+ds+(io?' - Atrasada':'')+'</div>'+cp+'</div><div style="display:flex;gap:6px;flex-shrink:0">'+cb+eb+'</div></div>';
   }).join('');
 }
 function openAddTask(base,candId){
@@ -1266,47 +1253,49 @@ function openAddTask(base,candId){
   document.getElementById('t-desc').value='';
   document.getElementById('t-date').value=new Date().toISOString().slice(0,10);
   document.getElementById('t-time').value='';
-  const infoEl=document.getElementById('task-cand-info');
-  if(base&&candId){const c=DB[base]&&DB[base].find(x=>x.id===candId);if(c){infoEl.textContent='Candidato: '+c.nome;infoEl.style.display='block';}else infoEl.style.display='none';}
-  else infoEl.style.display='none';
+  var ie=document.getElementById('task-cand-info');
+  if(base&&candId){var c=DB[base]&&DB[base].find(function(x){return x.id===candId;});if(c){ie.textContent='Candidato: '+c.nome;ie.style.display='block';}else ie.style.display='none';}
+  else ie.style.display='none';
   openOv('ov-task');
 }
 function openEditTask(id){
-  const t=TASKS.find(x=>x.id===id);if(!t)return;
+  var t=TASKS.find(function(x){return x.id===id;});if(!t)return;
   editTaskId=id;
   document.getElementById('task-modal-title').textContent='Editar Tarefa';
   document.getElementById('t-del').style.display='';
   document.getElementById('t-desc').value=t.text||'';
   document.getElementById('t-date').value=t.date||'';
   document.getElementById('t-time').value=t.time||'';
-  const infoEl=document.getElementById('task-cand-info');
-  if(t.candNome){infoEl.textContent='Candidato: '+t.candNome;infoEl.style.display='block';}else infoEl.style.display='none';
+  var ie=document.getElementById('task-cand-info');
+  if(t.candNome){ie.textContent='Candidato: '+t.candNome;ie.style.display='block';}else ie.style.display='none';
   openOv('ov-task');
 }
 function saveTask(){
-  const text=document.getElementById('t-desc').value.trim();if(!text){alert('Descrição obrigatória.');return;}
-  const date=document.getElementById('t-date').value,time=document.getElementById('t-time').value;
-  const cand=taskCandId&&taskCandBase?DB[taskCandBase]&&DB[taskCandBase].find(x=>x.id===taskCandId):null;
-  if(editTaskId){const t=TASKS.find(x=>x.id===editTaskId);if(t){t.text=text;t.date=date;t.time=time;}}
-  else TASKS.unshift({id:uid(),text,date,time,done:false,candId:taskCandId||null,candBase:taskCandBase||null,candNome:cand?cand.nome:null,created:new Date().toISOString()});
+  var text=document.getElementById('t-desc').value.trim();
+  if(!text){alert('Descricao obrigatoria.');return;}
+  var date=document.getElementById('t-date').value,time=document.getElementById('t-time').value;
+  var cand=taskCandId&&taskCandBase?DB[taskCandBase]&&DB[taskCandBase].find(function(x){return x.id===taskCandId;}):null;
+  if(editTaskId){var t=TASKS.find(function(x){return x.id===editTaskId;});if(t){t.text=text;t.date=date;t.time=time;}}
+  else TASKS.unshift({id:uid(),text:text,date:date,time:time,done:false,candId:taskCandId||null,candBase:taskCandBase||null,candNome:cand?cand.nome:null,created:new Date().toISOString()});
   fbSaveTasks();closeOv('ov-task');renderTasksBadge();
   if(document.getElementById('pg-tasks').classList.contains('active'))renderTasks();
 }
 function deleteTask(){
   if(!confirm('Excluir tarefa?'))return;
-  TASKS=TASKS.filter(t=>t.id!==editTaskId);
+  TASKS=TASKS.filter(function(t){return t.id!==editTaskId;});
   fbSaveTasks();closeOv('ov-task');renderTasksBadge();
   if(document.getElementById('pg-tasks').classList.contains('active'))renderTasks();
 }
-function toggleTask(id){const t=TASKS.find(x=>x.id===id);if(t){t.done=!t.done;fbSaveTasks();renderTasksBadge();renderTasks();}}
+function toggleTask(id){var t=TASKS.find(function(x){return x.id===id;});if(t){t.done=!t.done;fbSaveTasks();renderTasksBadge();renderTasks();}}
 function taskToGcal(id){
-  const t=TASKS.find(x=>x.id===id);if(!t||!t.date)return;
-  const dt=t.date.replace(/-/g,''),hora=(t.time||'09:00').replace(':','');
-  const hEnd=String((parseInt(hora.slice(0,2))+1)%24).padStart(2,'0'),mEnd=hora.slice(2)||'00';
-  const title=encodeURIComponent(t.candNome?'Ligar — '+t.candNome:t.text);
-  const det=encodeURIComponent(t.text+(t.candNome?'\nCandidato: '+t.candNome:''));
+  var t=TASKS.find(function(x){return x.id===id;});if(!t||!t.date)return;
+  var dt=t.date.replace(/-/g,''),hora=(t.time||'09:00').replace(':','');
+  var hEnd=String((parseInt(hora.slice(0,2))+1)%24).padStart(2,'0'),mEnd=hora.slice(2)||'00';
+  var title=encodeURIComponent(t.candNome?'Ligar - '+t.candNome:t.text);
+  var det=encodeURIComponent(t.text+(t.candNome?' Candidato: '+t.candNome:''));
   window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+dt+'T'+hora+'00/'+dt+'T'+hEnd+mEnd+'00&details='+det,'_blank');
 }
+
 // ── TABS ─────────────────────────────────────────
 const PAGES=['dash','hf','lucas','victor','tasks'];
 function goTo(p){
