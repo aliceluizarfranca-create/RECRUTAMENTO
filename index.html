@@ -307,7 +307,8 @@ header h1{font-size:.92rem;font-weight:700}
         <option value="oldest">Mais antigos primeiro</option>
         <option value="reuniao">Por data de reuniao</option>
       </select>
-        <div class="sf-row" id="sfr-hf">
+        <input type="date" id="df-hf" onchange="setDateFilter('hf',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:6px 9px;font-size:.78rem;background:#f7fafc;margin-bottom:4px" placeholder="Filtrar por data">
+      <div class="sf-row" id="sfr-hf">
           <span class="sf sf-all on" onclick="doSF('hf','')">Todos</span>
           <span class="sf sf-ag" onclick="doSF('hf','ag')">Agendado</span>
           <span class="sf sf-ret" onclick="doSF('hf','ret')">Retornar</span>
@@ -315,6 +316,13 @@ header h1{font-size:.92rem;font-weight:700}
           <span class="sf sf-sp" onclick="doSF('hf','sp')">Sem perfil</span>
           <span class="sf sf-nq" onclick="doSF('hf','nq')">Não quis</span>
         </div>
+      </div>
+      <div class="sf-row" style="margin-top:4px">
+          <span class="sf" style="background:#dbeafe;color:#1e40af" onclick="setLiderFilter('hf','Hugo')" id="lf-hf-hugo">Hugo</span>
+          <span class="sf" style="background:#fce7f3;color:#9d174d" onclick="setLiderFilter('hf','Felipe')" id="lf-hf-felipe">Felipe</span>
+        <span class="sf" style="background:#eff6ff;color:#1d4ed8" onclick="setQF('hf','today')" id="qf-hf-today">Reuniao hoje</span>
+        <span class="sf" style="background:#fefcbf;color:#92400e" onclick="setQF('hf','pbi')" id="qf-hf-pbi">PBI semana</span>
+        <span class="sf" style="background:#e2e8f0;color:#4a5568" onclick="clearQF('hf')" id="qf-hf-clear">Limpar</span>
       </div>
       <div class="sb-count" id="cnt-hf"></div>
       <div class="clist" id="cl-hf"></div>
@@ -345,6 +353,11 @@ header h1{font-size:.92rem;font-weight:700}
           <span class="sf sf-nq" onclick="doSF('lucas','nq')">Não quis</span>
         </div>
       </div>
+      <div class="sf-row" style="margin-top:4px">
+        <span class="sf" style="background:#eff6ff;color:#1d4ed8" onclick="setQF('lucas','today')" id="qf-lucas-today">Reuniao hoje</span>
+        <span class="sf" style="background:#fefcbf;color:#92400e" onclick="setQF('lucas','pbi')" id="qf-lucas-pbi">PBI semana</span>
+        <span class="sf" style="background:#e2e8f0;color:#4a5568" onclick="clearQF('lucas')" id="qf-lucas-clear">Limpar</span>
+      </div>
       <div class="sb-count" id="cnt-lucas"></div>
       <div class="clist" id="cl-lucas"></div>
     </div>
@@ -372,6 +385,11 @@ header h1{font-size:.92rem;font-weight:700}
           <span class="sf sf-sp" onclick="doSF('victor','sp')">Sem perfil</span>
           <span class="sf sf-nq" onclick="doSF('victor','nq')">Não quis</span>
         </div>
+      </div>
+      <div class="sf-row" style="margin-top:4px">
+        <span class="sf" style="background:#eff6ff;color:#1d4ed8" onclick="setQF('victor','today')" id="qf-victor-today">Reuniao hoje</span>
+        <span class="sf" style="background:#fefcbf;color:#92400e" onclick="setQF('victor','pbi')" id="qf-victor-pbi">PBI semana</span>
+        <span class="sf" style="background:#e2e8f0;color:#4a5568" onclick="clearQF('victor')" id="qf-victor-clear">Limpar</span>
       </div>
       <div class="sb-count" id="cnt-victor"></div>
       <div class="clist" id="cl-victor"></div>
@@ -563,6 +581,9 @@ let taskFilter='pending';
 let editTaskId=null;
 let taskCandBase=null,taskCandId=null;
 let SORT={hf:'newest',lucas:'newest',victor:'newest'};
+let LIDER_FILTER={hf:'',lucas:'',victor:''};
+let QF={hf:'',lucas:'',victor:''};
+let DATE_FILTER={hf:'',lucas:'',victor:''};
 
 // ── FIREBASE ─────────────────────────────────────
 async function fbSave(b) {
@@ -632,9 +653,15 @@ function wkSun(off=0) {
   e.setDate(s.getDate()+6); e.setHours(23,59,59,999); return e;
 }
 function wkKey(off) { return wkMon(off).toISOString().slice(0,10); }
-function inWk(ds,off) {
+function normDate(ds){
+  if(!ds)return'';
+  ds=String(ds).trim();
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(ds)){var p=ds.split('/');return p[2]+'-'+p[1]+'-'+p[0];}
+  return ds;
+}
+function inWk(ds,off){
   if(!ds)return false;
-  try{const d=new Date(ds+'T00:00:00');return d>=wkMon(off)&&d<=wkSun(off);}catch{return false;}
+  try{const d=new Date(normDate(ds)+'T00:00:00');return d>=wkMon(off)&&d<=wkSun(off);}catch{return false;}
 }
 function f2(d){return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}
 function fmtD(s){if(!s)return'—';try{return new Date(s+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});}catch{return s;}}
@@ -721,6 +748,9 @@ function getList(b) {
   const sq=SQ[b].toLowerCase();
   return DB[b].filter(c=>{
     if(SF[b].size>0&&!SF[b].has(stCode(c)))return false;
+    if(LIDER_FILTER[b]&&(c.lider_reuniao||'')!==LIDER_FILTER[b])return false;
+    if(QF[b]==='today'){var today2=new Date().toISOString().slice(0,10);if(normDate(c.data_reuniao)!==today2)return false;}
+    if(QF[b]==='pbi'){if(!c.tem_pbi||!inWk(normDate(c.data_pbi),wkOff))return false;}
     if(sq&&![(c.nome||''),(c.telefone||''),(c.cidade||''),(c.emprego_atual||'')].join(' ').toLowerCase().includes(sq))return false;
     return true;
   }).sort((a,b2)=>{
@@ -1327,11 +1357,11 @@ function renderHoje(){
     (basemap[bid]||[]).forEach(function(c){
       var ldr=getLider(c,bid);
       var ldrName=ldr?ldr.name:(bid==='lucas'?'Lucas':'Victor');
-      if(c.data_reuniao===today&&stCode(c)==='ag')
+      if(normDate(c.data_reuniao)===today&&stCode(c)==='ag')
         meetings.push({type:'F1',cand:c,ldr:ldr,ldrName:ldrName,hora:c.hora_reuniao||'',bid:bid});
-      if(c.data_pbi===today&&c.tem_pbi)
+      if(normDate(c.data_pbi)===today&&c.tem_pbi)
         meetings.push({type:'PBI',cand:c,ldr:ldr,ldrName:ldrName,hora:'19:00',bid:bid});
-      if(c.data_pos_pbi===today&&c.tem_pos_pbi)
+      if(normDate(c.data_pos_pbi)===today&&c.tem_pos_pbi)
         meetings.push({type:'Pos-PBI',cand:c,ldr:ldr,ldrName:ldrName,hora:c.hora_reuniao||'',bid:bid});
     });
   });
@@ -1456,39 +1486,108 @@ window.renderHoje=renderHoje;
 window.buildPBIMsg=buildPBIMsg;
 
 
-function renderDashHoje(){
-  var el=document.getElementById('dash-hoje');
-  if(!el)return;
+function getMeetingsToday(){
   var today=new Date().toISOString().slice(0,10);
   var meetings=[];
   var basemap={hf:DB.hf,lucas:DB.lucas,victor:DB.victor};
   Object.keys(basemap).forEach(function(bid){
     (basemap[bid]||[]).forEach(function(c){
       var ldr=getLider(c,bid);
-      if(c.data_reuniao===today&&stCode(c)==='ag')
-        meetings.push({label:'F1',nome:c.nome,hora:c.hora_reuniao||'',ldr:ldr,ldrId:ldr?ldr.id:bid});
-      if(c.data_pbi===today&&c.tem_pbi)
-        meetings.push({label:'PBI',nome:c.nome,hora:'19:00',ldr:ldr,ldrId:ldr?ldr.id:bid});
-      if(c.data_pos_pbi===today&&c.tem_pos_pbi)
-        meetings.push({label:'Pos-PBI',nome:c.nome,hora:c.hora_reuniao||'',ldr:ldr,ldrId:ldr?ldr.id:bid});
+      if(normDate(c.data_reuniao)===today&&stCode(c)==='ag')
+        meetings.push({label:'F1',nome:c.nome,hora:c.hora_reuniao||'',ldr:ldr,cand:c,bid:bid});
+      if(normDate(c.data_pbi)===today&&c.tem_pbi)
+        meetings.push({label:'PBI',nome:c.nome,hora:'19:00',ldr:ldr,cand:c,bid:bid});
+      if(normDate(c.data_pos_pbi)===today&&c.tem_pos_pbi)
+        meetings.push({label:'Pos-PBI',nome:c.nome,hora:c.hora_reuniao||'',ldr:ldr,cand:c,bid:bid});
     });
   });
   meetings.sort(function(a,b){return(a.hora||'').localeCompare(b.hora||'');});
-  if(!meetings.length){el.innerHTML='<div style="background:#fff;border-radius:9px;padding:12px 16px;color:#a0aec0;font-size:.82rem">Nenhuma reuniao agendada para hoje</div>';return;}
-  el.innerHTML=meetings.map(function(m){
-    var pill=m.ldr?'<span class="pill p-'+m.ldr.id+'">'+m.ldr.name+'</span>':'';
-    var tc=m.label==='F1'?'#dbeafe':m.label==='PBI'?'#fefcbf':'#d1fae5';
-    return '<div style="background:#fff;border-radius:9px;padding:10px 14px;margin-bottom:7px;box-shadow:0 1px 3px rgba(0,0,0,.07);display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
-      +'<span style="background:'+tc+';border-radius:5px;padding:2px 8px;font-size:.72rem;font-weight:700">'+m.label+'</span>'
-      +(m.hora?'<span style="font-size:.82rem;font-weight:700;color:#1e3a5f">'+m.hora+'h</span>':'')
-      +pill
-      +'<span style="font-size:.85rem;font-weight:600">'+esc(m.nome)+'</span>'
-      +'</div>';
-  }).join('');
+  return meetings;
+}
+function getPBIsThisWeek(){
+  var pbis=[];
+  var basemap={hf:DB.hf,lucas:DB.lucas,victor:DB.victor};
+  Object.keys(basemap).forEach(function(bid){
+    (basemap[bid]||[]).forEach(function(c){
+      var ldr=getLider(c,bid);
+      if(c.tem_pbi&&inWk(normDate(c.data_pbi),wkOff))
+        pbis.push({nome:c.nome,ldr:ldr,data:c.data_pbi,cand:c,bid:bid});
+    });
+  });
+  pbis.sort(function(a,b){return(normDate(a.data)||'').localeCompare(normDate(b.data)||'');});
+  return pbis;
+}
+function renderDashHoje(){
+  var el=document.getElementById('dash-hoje');
+  if(!el)return;
+  var meetings=getMeetingsToday();
+  var pbisWeek=getPBIsThisWeek();
+  var h2='';
+  h2+='<div style="font-size:.82rem;font-weight:700;color:#2d3748;margin-bottom:8px">Reunioes de hoje ('+meetings.length+')</div>';
+  if(!meetings.length){
+    h2+='<div style="background:#fff;border-radius:9px;padding:10px 14px;color:#a0aec0;font-size:.82rem;margin-bottom:14px">Nenhuma reuniao hoje</div>';
+  } else {
+    h2+=meetings.map(function(m){
+      var pill=m.ldr?('<span class="pill p-'+m.ldr.id+'">'+m.ldr.name+'</span>'):'';
+      var tc=m.label==='F1'?'#dbeafe':m.label==='PBI'?'#fefcbf':'#d1fae5';
+      return '<div style="background:#fff;border-radius:9px;padding:10px 14px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.07);display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+        +'<span style="background:'+tc+';border-radius:5px;padding:2px 7px;font-size:.71rem;font-weight:700">'+m.label+'</span>'
+        +(m.hora?'<span style="font-size:.81rem;font-weight:700;color:#1e3a5f">'+m.hora+'h</span>':'')
+        +pill+'<span style="font-size:.84rem;font-weight:600">'+esc(m.nome)+'</span></div>';
+    }).join('')+'<br>';
+  }
+  h2+='<div style="font-size:.82rem;font-weight:700;color:#2d3748;margin-bottom:8px">PBIs esta semana ('+pbisWeek.length+')</div>';
+  if(!pbisWeek.length){
+    h2+='<div style="background:#fff;border-radius:9px;padding:10px 14px;color:#a0aec0;font-size:.82rem">Nenhum PBI esta semana</div>';
+  } else {
+    h2+=pbisWeek.map(function(m){
+      var pill=m.ldr?('<span class="pill p-'+m.ldr.id+'">'+m.ldr.name+'</span>'):'';
+      var dataFmt=m.data?fmtD(normDate(m.data)):'—';
+      return '<div style="background:#fff;border-radius:9px;padding:10px 14px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.07);display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+        +'<span style="background:#fefcbf;border-radius:5px;padding:2px 7px;font-size:.71rem;font-weight:700">PBI</span>'
+        +'<span style="font-size:.78rem;color:#718096">'+dataFmt+' 19h</span>'
+        +pill+'<span style="font-size:.84rem;font-weight:600">'+esc(m.nome)+'</span></div>';
+    }).join('');
+  }
+  el.innerHTML=h2;
+}
+
+
+function setQF(b,v){
+  QF[b]=QF[b]===v?'':v;
+  // Update button states
+  ['today','pbi'].forEach(function(k){
+    var btn=document.getElementById('qf-'+b+'-'+k);
+    if(btn)btn.classList.toggle('on',QF[b]===k);
+  });
+  renderList(b);
+}
+function clearQF(b){
+  QF[b]='';LIDER_FILTER[b]='';
+  ['today','pbi','hugo','felipe'].forEach(function(k){
+    var btn=document.getElementById('qf-'+b+'-'+k);
+    if(btn)btn.classList.remove('on');
+    var lbtn=document.getElementById('lf-'+b+'-'+k);
+    if(lbtn)lbtn.classList.remove('on');
+  });
+  renderList(b);
 }
 
 function setSort(b,v){SORT[b]=v;renderList(b);}
+function setLiderFilter(b,v){
+  LIDER_FILTER[b]=LIDER_FILTER[b]===v?'':v;
+  ['hugo','felipe'].forEach(function(k){
+    var btn=document.getElementById('lf-'+b+'-'+k);
+    if(btn)btn.classList.toggle('on',LIDER_FILTER[b].toLowerCase()===k);
+  });
+  renderList(b);
+}
+function setDateFilter(b,v){DATE_FILTER[b]=v;renderList(b);}
 window.setSort=setSort;
+window.setLiderFilter=setLiderFilter;
+window.setDateFilter=setDateFilter;
+window.setQF=setQF;
+window.clearQF=clearQF;
 
 function renderTasksBadge(){var n=TASKS.filter(function(t){return!t.done;}).length;var b=document.getElementById('tasks-badge');if(b){if(n>0){b.textContent=n;b.style.display='inline';}else b.style.display='none';}}
 function setTaskFilter(f){taskFilter=f;['pending','today','done'].forEach(function(k){var btn=document.getElementById('tf-'+k);if(btn){btn.style.background=k===f?'#1e3a5f':'#e2e8f0';btn.style.color=k===f?'#fff':'#4a5568';}});renderTasks();}
@@ -1594,19 +1693,61 @@ async function loadApprovalCandidates(){
 }
 function renderApprovalList(novos){
   var el=document.getElementById('approval-list');if(!el)return;
-  if(!novos.length){el.innerHTML='<div style="text-align:center;padding:40px;background:#fff;border-radius:10px;color:#718096">Nenhum candidato novo para revisar!</div>';return;}
-  el.innerHTML='<p style="font-size:.8rem;color:#718096;margin-bottom:12px">'+novos.length+' candidatos para revisar:</p>'
-    +novos.map(function(c){
-      return '<div id="card-'+c.id+'" style="background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)">'
-        +'<div style="font-weight:700;font-size:.95rem;margin-bottom:4px">'+esc(c.nome)+'</div>'
-        +'<div style="font-size:.8rem;color:#718096;margin-bottom:2px">📞 '+esc(c.telefone||'-')+'</div>'
-        +(c.linkedin?'<div style="font-size:.8rem;margin-bottom:2px"><a href="'+esc(c.linkedin)+'" target="_blank" style="color:#0a66c2">in LinkedIn</a></div>':'')
-        +'<div style="font-size:.8rem;color:#718096;margin-bottom:10px">💼 '+esc(c.emprego_atual||'-')+'</div>'
-        +'<div style="display:flex;gap:8px">'
-        +'<button onclick="approveCandidate(''+c.id+'')" style="flex:1;background:#c6f6d5;color:#276749;border:1px solid #9ae6b4;border-radius:7px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer">✅ Aprovar ligacao</button>'
-        +'<button onclick="rejectCandidate(''+c.id+'')" style="flex:1;background:#fed7d7;color:#9b2c2c;border:1px solid #fc8181;border-radius:7px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer">❌ Lucas nao quis</button>'
-        +'</div></div>';
-    }).join('');
+  if(!novos.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;background:#fff;border-radius:10px;color:#718096">Nenhum candidato novo para revisar!</div>';
+    return;
+  }
+  el.innerHTML='';
+  var header=document.createElement('p');
+  header.style.cssText='font-size:.8rem;color:#718096;margin-bottom:12px';
+  header.textContent=novos.length+' candidatos para revisar:';
+  el.appendChild(header);
+
+  novos.forEach(function(c){
+    var card=document.createElement('div');
+    card.id='card-'+c.id;
+    card.style.cssText='background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)';
+
+    var nome=document.createElement('div');
+    nome.style.cssText='font-weight:700;font-size:.95rem;margin-bottom:4px';
+    nome.textContent=c.nome||'';
+    card.appendChild(nome);
+
+    var tel=document.createElement('div');
+    tel.style.cssText='font-size:.8rem;color:#718096;margin-bottom:2px';
+    tel.textContent='📞 '+(c.telefone||'-');
+    card.appendChild(tel);
+
+    if(c.linkedin){
+      var li=document.createElement('div');
+      li.style.cssText='font-size:.8rem;margin-bottom:2px';
+      var liA=document.createElement('a');
+      liA.href=c.linkedin;liA.target='_blank';liA.style.color='#0a66c2';liA.textContent='in LinkedIn';
+      li.appendChild(liA);card.appendChild(li);
+    }
+
+    var emp=document.createElement('div');
+    emp.style.cssText='font-size:.8rem;color:#718096;margin-bottom:10px';
+    emp.textContent='💼 '+(c.emprego_atual||'-');
+    card.appendChild(emp);
+
+    var btns=document.createElement('div');
+    btns.style.cssText='display:flex;gap:8px';
+
+    var btnOk=document.createElement('button');
+    btnOk.style.cssText='flex:1;background:#c6f6d5;color:#276749;border:1px solid #9ae6b4;border-radius:7px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer';
+    btnOk.textContent='✅ Aprovar ligacao';
+    btnOk.onclick=function(){approveCandidate(c.id);};
+
+    var btnNo=document.createElement('button');
+    btnNo.style.cssText='flex:1;background:#fed7d7;color:#9b2c2c;border:1px solid #fc8181;border-radius:7px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer';
+    btnNo.textContent='❌ Lucas nao quis';
+    btnNo.onclick=function(){rejectCandidate(c.id);};
+
+    btns.appendChild(btnOk);btns.appendChild(btnNo);
+    card.appendChild(btns);
+    el.appendChild(card);
+  });
 }
 async function updateCandStatus(candId,newStatus){
   try{
