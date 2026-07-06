@@ -809,6 +809,7 @@ function selCand(b,id){
 }
 
 function renderPanel(b,id){
+  try{
   const pn=document.getElementById('pn-'+b);
   const c=DB[b].find(x=>x.id===id);
   if(!c){pn.innerHTML='<div class="empty"><div style="font-size:2rem">👈</div>Selecione um candidato</div>';return;}
@@ -905,6 +906,8 @@ function renderPanel(b,id){
       '<div class="fld"><label>Filhos</label><select onchange="upd(\''+b+'\',\''+id+'\',\'filhos\',this.value)">'+filhOpts+'</select></div>'+
       '<div class="fld full"><label>Ensino superior</label><input type="text" value="'+esc(c.ensino_superior||'')+'" onchange="upd(\''+b+'\',\''+id+'\',\'ensino_superior\',this.value)"></div>'+
     '</div></div>';
+
+  }catch(err){console.error('renderPanel error:',err,b,id);document.getElementById('pn-'+b).innerHTML='<div style="padding:20px;color:red;font-size:.8rem">Erro: '+err.message+'</div>';}
 }
 
 function goBack(b){
