@@ -307,13 +307,7 @@ header h1{font-size:.92rem;font-weight:700}
         <option value="oldest">Mais antigos primeiro</option>
         <option value="reuniao">Por data de reuniao</option>
       </select>
-        <select onchange="setLiderFilter('hf',this.value)" id="lf-hf" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:6px 9px;font-size:.78rem;background:#f7fafc;margin-bottom:4px">
-        <option value="">Todos os líderes</option>
-        <option value="Hugo">Hugo</option>
-        <option value="Felipe">Felipe</option>
-      </select>
-      <input type="date" id="df-hf" onchange="setDateFilter('hf',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:6px 9px;font-size:.78rem;background:#f7fafc;margin-bottom:4px" placeholder="Filtrar por data">
-      <div class="sf-row" id="sfr-hf">
+        <div class="sf-row" id="sfr-hf">
           <span class="sf sf-all on" onclick="doSF('hf','')">Todos</span>
           <span class="sf sf-ag" onclick="doSF('hf','ag')">Agendado</span>
           <span class="sf sf-ret" onclick="doSF('hf','ret')">Retornar</span>
@@ -342,8 +336,7 @@ header h1{font-size:.92rem;font-weight:700}
         <option value="oldest">Mais antigos primeiro</option>
         <option value="reuniao">Por data de reuniao</option>
       </select>
-        <input type="date" id="df-lucas" onchange="setDateFilter('lucas',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:6px 9px;font-size:.78rem;background:#f7fafc;margin-bottom:4px">
-      <div class="sf-row" id="sfr-lucas">
+        <div class="sf-row" id="sfr-lucas">
           <span class="sf sf-all on" onclick="doSF('lucas','')">Todos</span>
           <span class="sf sf-ag" onclick="doSF('lucas','ag')">Agendado</span>
           <span class="sf sf-ret" onclick="doSF('lucas','ret')">Retornar</span>
@@ -371,8 +364,7 @@ header h1{font-size:.92rem;font-weight:700}
         <option value="oldest">Mais antigos primeiro</option>
         <option value="reuniao">Por data de reuniao</option>
       </select>
-        <input type="date" id="df-victor" onchange="setDateFilter('victor',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:6px 9px;font-size:.78rem;background:#f7fafc;margin-bottom:4px">
-      <div class="sf-row" id="sfr-victor">
+        <div class="sf-row" id="sfr-victor">
           <span class="sf sf-all on" onclick="doSF('victor','')">Todos</span>
           <span class="sf sf-ag" onclick="doSF('victor','ag')">Agendado</span>
           <span class="sf sf-ret" onclick="doSF('victor','ret')">Retornar</span>
@@ -571,8 +563,6 @@ let taskFilter='pending';
 let editTaskId=null;
 let taskCandBase=null,taskCandId=null;
 let SORT={hf:'newest',lucas:'newest',victor:'newest'};
-let LIDER_FILTER={hf:'',lucas:'',victor:''};
-let DATE_FILTER={hf:'',lucas:'',victor:''};
 
 // ── FIREBASE ─────────────────────────────────────
 async function fbSave(b) {
@@ -642,15 +632,9 @@ function wkSun(off=0) {
   e.setDate(s.getDate()+6); e.setHours(23,59,59,999); return e;
 }
 function wkKey(off) { return wkMon(off).toISOString().slice(0,10); }
-function normDate(ds){
-  if(!ds)return'';
-  ds=String(ds).trim();
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(ds)){var p=ds.split('/');return p[2]+'-'+p[1]+'-'+p[0];}
-  return ds;
-}
-function inWk(ds,off){
+function inWk(ds,off) {
   if(!ds)return false;
-  try{const d=new Date(normDate(ds)+'T00:00:00');return d>=wkMon(off)&&d<=wkSun(off);}catch{return false;}
+  try{const d=new Date(ds+'T00:00:00');return d>=wkMon(off)&&d<=wkSun(off);}catch{return false;}
 }
 function f2(d){return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}
 function fmtD(s){if(!s)return'—';try{return new Date(s+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});}catch{return s;}}
@@ -737,8 +721,6 @@ function getList(b) {
   const sq=SQ[b].toLowerCase();
   return DB[b].filter(c=>{
     if(SF[b].size>0&&!SF[b].has(stCode(c)))return false;
-    if(LIDER_FILTER[b]&&(c.lider_reuniao||'')!==LIDER_FILTER[b])return false;
-    if(DATE_FILTER[b]&&normDate(c.data_reuniao)!==DATE_FILTER[b])return false;
     if(sq&&![(c.nome||''),(c.telefone||''),(c.cidade||''),(c.emprego_atual||'')].join(' ').toLowerCase().includes(sq))return false;
     return true;
   }).sort((a,b2)=>{
@@ -1345,11 +1327,11 @@ function renderHoje(){
     (basemap[bid]||[]).forEach(function(c){
       var ldr=getLider(c,bid);
       var ldrName=ldr?ldr.name:(bid==='lucas'?'Lucas':'Victor');
-      if(normDate(c.data_reuniao)===today&&stCode(c)==='ag')
+      if(c.data_reuniao===today&&stCode(c)==='ag')
         meetings.push({type:'F1',cand:c,ldr:ldr,ldrName:ldrName,hora:c.hora_reuniao||'',bid:bid});
-      if(normDate(c.data_pbi)===today&&c.tem_pbi)
+      if(c.data_pbi===today&&c.tem_pbi)
         meetings.push({type:'PBI',cand:c,ldr:ldr,ldrName:ldrName,hora:'19:00',bid:bid});
-      if(normDate(c.data_pos_pbi)===today&&c.tem_pos_pbi)
+      if(c.data_pos_pbi===today&&c.tem_pos_pbi)
         meetings.push({type:'Pos-PBI',cand:c,ldr:ldr,ldrName:ldrName,hora:c.hora_reuniao||'',bid:bid});
     });
   });
@@ -1483,11 +1465,11 @@ function renderDashHoje(){
   Object.keys(basemap).forEach(function(bid){
     (basemap[bid]||[]).forEach(function(c){
       var ldr=getLider(c,bid);
-      if(normDate(c.data_reuniao)===today&&stCode(c)==='ag')
+      if(c.data_reuniao===today&&stCode(c)==='ag')
         meetings.push({label:'F1',nome:c.nome,hora:c.hora_reuniao||'',ldr:ldr,ldrId:ldr?ldr.id:bid});
-      if(normDate(c.data_pbi)===today&&c.tem_pbi)
+      if(c.data_pbi===today&&c.tem_pbi)
         meetings.push({label:'PBI',nome:c.nome,hora:'19:00',ldr:ldr,ldrId:ldr?ldr.id:bid});
-      if(normDate(c.data_pos_pbi)===today&&c.tem_pos_pbi)
+      if(c.data_pos_pbi===today&&c.tem_pos_pbi)
         meetings.push({label:'Pos-PBI',nome:c.nome,hora:c.hora_reuniao||'',ldr:ldr,ldrId:ldr?ldr.id:bid});
     });
   });
@@ -1506,11 +1488,7 @@ function renderDashHoje(){
 }
 
 function setSort(b,v){SORT[b]=v;renderList(b);}
-function setLiderFilter(b,v){LIDER_FILTER[b]=v;renderList(b);}
-function setDateFilter(b,v){DATE_FILTER[b]=v;renderList(b);}
 window.setSort=setSort;
-window.setLiderFilter=setLiderFilter;
-window.setDateFilter=setDateFilter;
 
 function renderTasksBadge(){var n=TASKS.filter(function(t){return!t.done;}).length;var b=document.getElementById('tasks-badge');if(b){if(n>0){b.textContent=n;b.style.display='inline';}else b.style.display='none';}}
 function setTaskFilter(f){taskFilter=f;['pending','today','done'].forEach(function(k){var btn=document.getElementById('tf-'+k);if(btn){btn.style.background=k===f?'#1e3a5f':'#e2e8f0';btn.style.color=k===f?'#fff':'#4a5568';}});renderTasks();}
@@ -1616,61 +1594,19 @@ async function loadApprovalCandidates(){
 }
 function renderApprovalList(novos){
   var el=document.getElementById('approval-list');if(!el)return;
-  if(!novos.length){
-    el.innerHTML='<div style="text-align:center;padding:40px;background:#fff;border-radius:10px;color:#718096">Nenhum candidato novo para revisar!</div>';
-    return;
-  }
-  el.innerHTML='';
-  var header=document.createElement('p');
-  header.style.cssText='font-size:.8rem;color:#718096;margin-bottom:12px';
-  header.textContent=novos.length+' candidatos para revisar:';
-  el.appendChild(header);
-
-  novos.forEach(function(c){
-    var card=document.createElement('div');
-    card.id='card-'+c.id;
-    card.style.cssText='background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)';
-
-    var nome=document.createElement('div');
-    nome.style.cssText='font-weight:700;font-size:.95rem;margin-bottom:4px';
-    nome.textContent=c.nome||'';
-    card.appendChild(nome);
-
-    var tel=document.createElement('div');
-    tel.style.cssText='font-size:.8rem;color:#718096;margin-bottom:2px';
-    tel.textContent='📞 '+(c.telefone||'-');
-    card.appendChild(tel);
-
-    if(c.linkedin){
-      var li=document.createElement('div');
-      li.style.cssText='font-size:.8rem;margin-bottom:2px';
-      var liA=document.createElement('a');
-      liA.href=c.linkedin;liA.target='_blank';liA.style.color='#0a66c2';liA.textContent='in LinkedIn';
-      li.appendChild(liA);card.appendChild(li);
-    }
-
-    var emp=document.createElement('div');
-    emp.style.cssText='font-size:.8rem;color:#718096;margin-bottom:10px';
-    emp.textContent='💼 '+(c.emprego_atual||'-');
-    card.appendChild(emp);
-
-    var btns=document.createElement('div');
-    btns.style.cssText='display:flex;gap:8px';
-
-    var btnOk=document.createElement('button');
-    btnOk.style.cssText='flex:1;background:#c6f6d5;color:#276749;border:1px solid #9ae6b4;border-radius:7px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer';
-    btnOk.textContent='✅ Aprovar ligacao';
-    btnOk.onclick=function(){approveCandidate(c.id);};
-
-    var btnNo=document.createElement('button');
-    btnNo.style.cssText='flex:1;background:#fed7d7;color:#9b2c2c;border:1px solid #fc8181;border-radius:7px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer';
-    btnNo.textContent='❌ Lucas nao quis';
-    btnNo.onclick=function(){rejectCandidate(c.id);};
-
-    btns.appendChild(btnOk);btns.appendChild(btnNo);
-    card.appendChild(btns);
-    el.appendChild(card);
-  });
+  if(!novos.length){el.innerHTML='<div style="text-align:center;padding:40px;background:#fff;border-radius:10px;color:#718096">Nenhum candidato novo para revisar!</div>';return;}
+  el.innerHTML='<p style="font-size:.8rem;color:#718096;margin-bottom:12px">'+novos.length+' candidatos para revisar:</p>'
+    +novos.map(function(c){
+      return '<div id="card-'+c.id+'" style="background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)">'
+        +'<div style="font-weight:700;font-size:.95rem;margin-bottom:4px">'+esc(c.nome)+'</div>'
+        +'<div style="font-size:.8rem;color:#718096;margin-bottom:2px">📞 '+esc(c.telefone||'-')+'</div>'
+        +(c.linkedin?'<div style="font-size:.8rem;margin-bottom:2px"><a href="'+esc(c.linkedin)+'" target="_blank" style="color:#0a66c2">in LinkedIn</a></div>':'')
+        +'<div style="font-size:.8rem;color:#718096;margin-bottom:10px">💼 '+esc(c.emprego_atual||'-')+'</div>'
+        +'<div style="display:flex;gap:8px">'
+        +'<button onclick="approveCandidate(''+c.id+'')" style="flex:1;background:#c6f6d5;color:#276749;border:1px solid #9ae6b4;border-radius:7px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer">✅ Aprovar ligacao</button>'
+        +'<button onclick="rejectCandidate(''+c.id+'')" style="flex:1;background:#fed7d7;color:#9b2c2c;border:1px solid #fc8181;border-radius:7px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer">❌ Lucas nao quis</button>'
+        +'</div></div>';
+    }).join('');
 }
 async function updateCandStatus(candId,newStatus){
   try{
