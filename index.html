@@ -61,6 +61,7 @@ header h1{font-size:.92rem;font-weight:700}
 .p-felipe{background:#fce7f3;color:#9d174d}
 .p-lucas{background:#d1fae5;color:#065f46}
 .p-victor{background:#ede9fe;color:#5b21b6}
+.p-larissa{background:#ffe4e6;color:#9f1239}
 .prog-wrap{height:7px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin:7px 0 4px}
 .prog-bar{height:100%;border-radius:99px}
 .pb-ok{background:#48bb78}.pb-warn{background:#ed8936}.pb-bad{background:#fc8181}
@@ -269,7 +270,9 @@ header h1{font-size:.92rem;font-weight:700}
   <div class="nav-tab" onclick="goTo('hf')">👥 Hugo &amp; Felipe</div>
   <div class="nav-tab" onclick="goTo('lucas')">👤 Lucas</div>
   <div class="nav-tab" onclick="goTo('victor')">👤 Victor</div>
+  <div class="nav-tab" onclick="goTo('larissa')">👤 Larissa</div>
   <div class="nav-tab" onclick="goTo('tasks')">📌 Tarefas<span id="tasks-badge" style="display:none;background:#e53e3e;color:#fff;border-radius:99px;font-size:.65rem;padding:1px 6px;margin-left:5px;font-weight:700"></span></div>
+  <div class="nav-tab" onclick="exportBackup()" title="Baixar copia de seguranca de todas as bases">💾 Backup</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -395,6 +398,39 @@ header h1{font-size:.92rem;font-weight:700}
       <div class="clist" id="cl-victor"></div>
     </div>
     <div class="painel" id="pn-victor"><div class="empty"><div style="font-size:2rem">👈</div>Selecione um candidato</div></div>
+  </div>
+</div>
+
+<!-- BASE LARISSA -->
+<div class="page" id="pg-larissa">
+  <div class="base-desktop" id="bd-larissa">
+    <div class="sidebar">
+      <div class="sb-top">
+        <button class="btn-add" onclick="openAdd('larissa')">+ Novo candidato</button>
+        <input class="sb-search" placeholder="Buscar..." oninput="doSearch('larissa',this.value)" id="srch-larissa">
+      <select onchange="setSort('larissa',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:6px 9px;font-size:.78rem;background:#f7fafc">
+        <option value="newest">Mais recentes primeiro</option>
+        <option value="oldest">Mais antigos primeiro</option>
+        <option value="reuniao">Por data de reuniao</option>
+      </select>
+        <div class="sf-row" id="sfr-larissa">
+          <span class="sf sf-all on" onclick="doSF('larissa','')">Todos</span>
+          <span class="sf sf-ag" onclick="doSF('larissa','ag')">Agendado</span>
+          <span class="sf sf-ret" onclick="doSF('larissa','ret')">Retornar</span>
+          <span class="sf sf-nv" onclick="doSF('larissa','nv')">Novo</span>
+          <span class="sf sf-sp" onclick="doSF('larissa','sp')">Sem perfil</span>
+          <span class="sf sf-nq" onclick="doSF('larissa','nq')">Não quis</span>
+        </div>
+      </div>
+      <div class="sf-row" style="margin-top:4px">
+        <span class="sf" style="background:#eff6ff;color:#1d4ed8" onclick="setQF('larissa','today')" id="qf-larissa-today">Reuniao hoje</span>
+        <span class="sf" style="background:#fefcbf;color:#92400e" onclick="setQF('larissa','pbi')" id="qf-larissa-pbi">PBI semana</span>
+        <span class="sf" style="background:#e2e8f0;color:#4a5568" onclick="clearQF('larissa')" id="qf-larissa-clear">Limpar</span>
+      </div>
+      <div class="sb-count" id="cnt-larissa"></div>
+      <div class="clist" id="cl-larissa"></div>
+    </div>
+    <div class="painel" id="pn-larissa"><div class="empty"><div style="font-size:2rem">👈</div>Selecione um candidato</div></div>
   </div>
 </div>
 
@@ -533,6 +569,7 @@ const RAW_LUCAS=[{"id":"lucas_527","nome":"Rick dos Anjos","telefone":"011 96383
 const RAW_VICTOR=[{"id":"victor_27","nome":"Guilherme Costa","telefone":"016 996154401","linkedin":"https://www.linkedin.com/in/guilherme-costa-cea-714a71294/","obs":"","idade":"","cidade":"","modelo_contratacao":"","emprego_atual":"","salario":"","estado_civil":"","filhos":"","ensino_superior":"","status_hist":"","status_sistema":"novo","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_26","nome":"Flavia Freitas Sousa","telefone":"016 98114-2184","linkedin":"https://www.linkedin.com/in/flavia-freitas-sousa-29916919b/","obs":"tem 6 meses que saiu da sicred","idade":"42.0","cidade":"Franca","modelo_contratacao":"CLT","emprego_atual":"TEM 6 MESES QUE SAIU DA SICRED FERENTE DE CONTAS","salario":"9K","estado_civil":"SOLTEIRO(A)","filhos":"NÃO","ensino_superior":"ECONOMIA","status_hist":"6 MESES DESEMPREGADA","status_sistema":"inapto","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_25","nome":"João Luiz Batista Junior","telefone":"016 99712 0711","linkedin":"https://www.linkedin.com/in/jo%C3%A3o-luiz-batista-junior/","obs":"","idade":"","cidade":"","modelo_contratacao":"","emprego_atual":"","salario":"","estado_civil":"","filhos":"","ensino_superior":"","status_hist":"","status_sistema":"novo","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_24","nome":"Julia Freitas","telefone":"016 992822272","linkedin":"https://www.linkedin.com/in/j%C3%BAlia-freitas2001/","obs":"","idade":"25.0","cidade":"Franca","modelo_contratacao":"CLT","emprego_atual":"Gerente Comercial Digital | Mercado Financeiro","salario":"4K","estado_civil":"SOLTEIRO(A)","filhos":"NÃO","ensino_superior":"ADMINISTRAÇÃO","status_hist":"RENDA BAIXA","status_sistema":"inapto","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_23","nome":"Deborah Alessandra","telefone":"067 999894813","linkedin":"https://www.linkedin.com/in/deborah-alessandra-monteiro-4846a022a/","obs":"1 mês que saiu da Sicred","idade":"28.0","cidade":"Campo Grande","modelo_contratacao":"CLT","emprego_atual":"1 mês que saiu da Sicred gerente de pessoa Fisica de alta renda","salario":"9k","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"ADMINISTRAÇÃO","status_hist":"1 mês que saiu da Sicred MORA NO MATO GROSSO","status_sistema":"inapto","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_22","nome":"Jose Amauri Artuzo","telefone":"016 99222-4668","linkedin":"https://www.linkedin.com/in/jos%C3%A9-amauri-artuzo-jr-cea-41511426/","obs":"IDADE SUPERIOR","idade":"53.0","cidade":"Ribeirão Preto","modelo_contratacao":"CLT","emprego_atual":"SICRED GERENTE GERAL","salario":"25K","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"ECONOMIA","status_hist":"IDADE SUPERIOR","status_sistema":"inapto","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_21","nome":"Michael Rodrigues","telefone":"016 99192-3443","linkedin":"https://www.linkedin.com/in/michaelrodriguescea/","obs":"","idade":"36.0","cidade":"Taiaçu","modelo_contratacao":"CLT","emprego_atual":"SICRED GERENTE SAIU SEGUNDA FEIRA","salario":"10K","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"ADMINISTRAÇÃO","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_20","nome":"Ricardo Cesar","telefone":"017 99664 5804","linkedin":"https://www.linkedin.com/in/ricardocesar/","obs":"","idade":"","cidade":"","modelo_contratacao":"","emprego_atual":"","salario":"","estado_civil":"","filhos":"","ensino_superior":"","status_hist":"","status_sistema":"novo","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_19","nome":"Yuri Teles","telefone":"016 993604077","linkedin":"https://www.linkedin.com/in/yuri-teles-cea-8b2b26148/","obs":"","idade":"30.0","cidade":"Franca","modelo_contratacao":"PJ","emprego_atual":"SUNO Especialista em investimentos","salario":"9,5 K","estado_civil":"NOIVO(A)","filhos":"NÃO","ensino_superior":"ENGENHARIA CIVIL","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_18","nome":"Evelene Sales dos Santos","telefone":"016 997305617","linkedin":"https://www.linkedin.com/in/evelene-sales-cea/","obs":"","idade":"39.0","cidade":"Ribeirão Preto","modelo_contratacao":"CLT","emprego_atual":"GRUPO SEB ANALISTA FINANCEIRA","salario":"9K","estado_civil":"SOLTEIRO(A)","filhos":"SIM","ensino_superior":"MBA GESTÃO COMERCIAL","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_17","nome":"Andreia Santos de Souza","telefone":"021 998516163","linkedin":"https://www.linkedin.com/in/andreia-santos-de-souza-/","obs":"IDADE SUPERIOR","idade":"49.0","cidade":"Rio de Janeiro","modelo_contratacao":"CLT","emprego_atual":"ACESSORA COMERCIAL DE NEGOCIOS NA SICRED","salario":"10K","estado_civil":"SOLTEIRO(A)","filhos":"SIM","ensino_superior":"PÓS EM GESTÃO DE PESSOAS","status_hist":"IDADE SUPERIOR E MORA NO RIO DE JANEIRO","status_sistema":"inapto","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_16","nome":"Waldeir de Oliveira","telefone":"016 991262998","linkedin":"https://www.linkedin.com/in/waldeir-de-oliveira-cfp%C2%AE-19ab0437/","obs":"","idade":"42.0","cidade":"Franca","modelo_contratacao":"CLT","emprego_atual":"Santander gerente alta renda","salario":"25k","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"adm","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_15","nome":"Marcela Santos","telefone":"016 981053275","linkedin":"https://www.linkedin.com/in/marcela-santoss/","obs":"Ligar amanhã dia 18/06","idade":"","cidade":"","modelo_contratacao":"","emprego_atual":"","salario":"","estado_civil":"","filhos":"","ensino_superior":"","status_hist":"","status_sistema":"novo","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_14","nome":"João Pedro","telefone":"016 992459795","linkedin":"https://www.linkedin.com/in/jpscridelli/","obs":"NÃO TEM SUPERIOR COMPLETO ( PREVISÃO DE CONCLUSÃO DEZEMBRO 2026)","idade":"21.0","cidade":"Ribeirão Preto","modelo_contratacao":"CLT","emprego_atual":"BANCO SANTANDER GERENTE COMERCIAL","salario":"12K","estado_civil":"SOLTEIRO(A)","filhos":"NÃO","ensino_superior":"ADMINISTRAÇÃO EM CURSO ( PREVISÃO CONCLUSÃO DEZEMBRO 2026)","status_hist":"NÃO TEM SUPERIOR COMPLETO ( PREVISÃO DE CONCLUSÃO DEZEMBRO 2026)","status_sistema":"inapto","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_13","nome":"Italo Araujo","telefone":"016 99626-0168","linkedin":"https://www.linkedin.com/in/italo-araujo-163260217/","obs":"","idade":"24.0","cidade":"Franca","modelo_contratacao":"CLT","emprego_atual":"Gerente de Relacionamento | Sicoob Credicocapec","salario":"9K","estado_civil":"CASADO(A)","filhos":"NÃO","ensino_superior":"ADMINISTRAÇÃO","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_12","nome":"Danilo Panchin","telefone":"016 98243-3412","linkedin":"https://www.linkedin.com/in/danilo-panchin-3250b821b/","obs":"LIGAR DIA 24/06 16HORAS ( ESTA EM VIAGEM)","idade":"","cidade":"","modelo_contratacao":"","emprego_atual":"","salario":"","estado_civil":"","filhos":"","ensino_superior":"","status_hist":"","status_sistema":"novo","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_11","nome":"Micael Pianissola","telefone":"016 999613191","linkedin":"https://www.linkedin.com/in/micael-pianissola-26846b111/","obs":"","idade":"40.0","cidade":"Franca","modelo_contratacao":"CLT","emprego_atual":"GERENTE REGIONAL DO BANCO SANTANDER","salario":"19K","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"GESTÃO FINANCEIRO E PÓS EM GESTÃO DE PESSOA, BANCÁRIA","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_10","nome":"Talita Barboza da Silva","telefone":"016 991071400","linkedin":"https://www.linkedin.com/in/talita-barboza-da-silva-79a02254/","obs":"NÃO ATENDEU","idade":"","cidade":"","modelo_contratacao":"","emprego_atual":"","salario":"","estado_civil":"","filhos":"","ensino_superior":"","status_hist":"","status_sistema":"novo","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_9","nome":"Luis Gustavo Bartistela","telefone":"018 99737-6316","linkedin":"https://www.linkedin.com/in/luis-gustavo-batistela/","obs":"","idade":"38.0","cidade":"Ribeirão Preto","modelo_contratacao":"CLT","emprego_atual":"BANCO ITAU GERENTE GERAL EMPRESAS","salario":"22K","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"ADMINISTRAÇÃO MBA NEUROCIÊNCIA ( COMPORTAMENTO HUMANO) E IA APLICADA A NEGOCIOS","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_8","nome":"Josiane Oliveira","telefone":"016 99332-0801","linkedin":"https://www.linkedin.com/in/josiane-oliveira-12109511a/","obs":"","idade":"35.0","cidade":"Santa Rosa de Viterbo","modelo_contratacao":"CLT","emprego_atual":"GERENTE GERAL DA AGENCIA  BANCO SANTANDER","salario":"15K","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"PEDAGOGIA E RECURSOS HUMANOS","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_7","nome":"Renan Freitas","telefone":"016 993777466","linkedin":"https://www.linkedin.com/in/renan-freitas-/","obs":"","idade":"34.0","cidade":"Ribeirão Preto","modelo_contratacao":"CLT","emprego_atual":"itau gerente de negócios Renova","salario":"16k","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"Direito","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_6","nome":"Guilherme Lima","telefone":"35988459240","linkedin":"https://www.linkedin.com/in/guilherme-s-lima/","obs":"Ligar amanhã 16/06  as 12.30","idade":"","cidade":"","modelo_contratacao":"","emprego_atual":"","salario":"","estado_civil":"","filhos":"","ensino_superior":"","status_hist":"","status_sistema":"novo","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_5","nome":"Fabricio Marques Leopoldino","telefone":"016 991422332","linkedin":"https://www.linkedin.com/in/fabriciomleopoldino/","obs":"IDADE SUPERIOR E TEM 1 MÊS QUE SAIU DO BANCO","idade":"47.0","cidade":"Ribeirão Preto","modelo_contratacao":"CLT","emprego_atual":"TEM 1 MÊS QUE SAIU DO BANCO SANTADER GERENTE DE RELACIONAMENTO","salario":"13K","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"ADMINISTRAÇÃO","status_hist":"IDADE SUPERIOR E TEM 1 MÊS QUE SAIU DO BANCO","status_sistema":"inapto","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_4","nome":"Daniel Guerra Borges","telefone":"0 16 999697782","linkedin":"https://www.linkedin.com/in/daniel-guerra-borges-cpa2o-0688a21a9/","obs":"","idade":"43.0","cidade":"Franca","modelo_contratacao":"CLT","emprego_atual":"gerente geral","salario":"15k","estado_civil":"CASADO(A)","filhos":"NÃO","ensino_superior":"","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_3","nome":"Otavio Ledier","telefone":"011 975972699","linkedin":"https://www.linkedin.com/in/ot%C3%A1vio-ledier-bbb80125a/","obs":"IDADE SUPERIOR","idade":"45.0","cidade":"Ribeirão Preto","modelo_contratacao":"CLT","emprego_atual":"BANCO SANTANDER GERENTE DE EMPRESAS","salario":"12K","estado_civil":"CASADO(A)","filhos":"SIM","ensino_superior":"ADMINISTRAÇÃO ,RECURSOS HUMANOS","status_hist":"IDADE SUPERIOR","status_sistema":"inapto","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_2","nome":"Italo Azevedo Inacio","telefone":"016 993563698","linkedin":"https://www.linkedin.com/in/italo-inacio/","obs":"NÃO ATENDEU","idade":"28.0","cidade":"Franca","modelo_contratacao":"CLT","emprego_atual":"sicoob analisa comercial","salario":"7k mas tem plr","estado_civil":"NOIVO(A)","filhos":"NÃO","ensino_superior":"direito e economia e fazendo pós","status_hist":"","status_sistema":"novo","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_1","nome":"Bruna Dantas","telefone":"083 98110-9770","linkedin":"https://www.linkedin.com/in/bruna-dantas-b67879344/","obs":"","idade":"","cidade":"","modelo_contratacao":"","emprego_atual":"","salario":"","estado_civil":"","filhos":"","ensino_superior":"","status_hist":"","status_sistema":"inapto","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":false,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""},{"id":"victor_0","nome":"Matheus Braga","telefone":"016 99414-7380","linkedin":"https://www.linkedin.com/in/matheus-braga-b7b309208/","obs":"","idade":"26.0","cidade":"Franca","modelo_contratacao":"CLT","emprego_atual":"Banco santander gerente pj","salario":"10k fixo","estado_civil":"CASADO(A)","filhos":"NÃO","ensino_superior":"ADM","status_hist":"","status_sistema":"agendado","lider_reuniao":"Victor","data_reuniao":"","hora_reuniao":"","agendou_1a":true,"tem_pbi":false,"data_pbi":"","lider_pbi":"","tem_pos_pbi":false,"data_pos_pbi":"","resultado_pos_pbi":"","origem":"Victor","cadastro_date":""}];
 // ── CONSTANTS ────────────────────────────────────
 const SYSTEM_START = '2026-06-23';
+const RAW_LARISSA=[];
 const LEADERS = [
   {id:'hugo',   name:'Hugo',   base:'hf',    meta:5,  pill:'p-hugo',
    email:'summitmetlife@gmail.com',
@@ -551,7 +588,11 @@ const LEADERS = [
    link_f1:'',
    link_pbi:'https://us02web.zoom.us/j/9815483138?pwd=bXB1WVRpWkhGdldWZm41RmRoTEI1dz09',
    link_pbi_ark:'https://us02web.zoom.us/j/9815483138?pwd=bXB1WVRpWkhGdldWZm41RmRoTEI1dz09',
-   link_pbi_triade:'https://us02web.zoom.us/j/9118759270'}
+   link_pbi_triade:'https://us02web.zoom.us/j/9118759270'},
+  {id:'larissa', name:'Larissa', base:'larissa', meta:10, meta_min:5, pill:'p-larissa',
+   email:'lscarpim89@gmail.com',
+   link_f1:'https://us06web.zoom.us/j/2994141772?pwd=TkFzMGxFdVRZVE1RblFoNEdaVHh1Zz09',
+   link_pbi:'https://us02web.zoom.us/j/85007624816?pwd=aPYZLbSXOcUibL0XEinDB34trftlb0.1'}
 ];
 
 const CRITERIOS = {
@@ -559,6 +600,7 @@ const CRITERIOS = {
   felipe: {sal_min:7000,  idade_max:45, regioes:['bh','belo horizonte','juiz de fora','minas'], raio_km:200},
   lucas:  {sal_min:9000,  idade_max:45, regioes:[], raio_km:null},
   victor: {sal_min:9000,  idade_min:24, idade_max:43, regioes:['ribeirão preto','ribeirao preto','sp'], raio_km:200},
+  larissa:{sal_min:9000,  idade_max:40, regioes:['londrina','cambé','cambe','ibiporã','ibipora','rolândia','rolandia','jataizinho','sertanópolis','sertanopolis','bela vista do paraíso','bela vista do paraiso','assaí','assai','cornélio procópio','cornelio procopio','mauá da serra','maua da serra','mandaguari','marialva','maringá','maringa'], raio_km:null},
 };
 
 const ST_LABEL = {ag:'Agendado', ret:'Retornar', sp:'Sem perfil', nq:'Não quis', nv:'Novo'};
@@ -566,10 +608,10 @@ const ST_BADGE = {ag:'cb-ag', ret:'cb-ret', sp:'cb-sp', nq:'cb-nq', nv:'cb-nv'};
 const ORDER    = {ag:0, ret:1, nv:2, sp:3, nq:4};
 
 // ── STATE ────────────────────────────────────────
-let DB  = {hf:[], lucas:[], victor:[]};
-let SF  = {hf:new Set(), lucas:new Set(), victor:new Set()};
-let SQ  = {hf:'', lucas:'', victor:''};
-let SEL = {hf:null, lucas:null, victor:null};
+let DB  = {hf:[], lucas:[], victor:[], larissa:[]};
+let SF  = {hf:new Set(), lucas:new Set(), victor:new Set(), larissa:new Set()};
+let SQ  = {hf:'', lucas:'', victor:'', larissa:''};
+let SEL = {hf:null, lucas:null, victor:null, larissa:null};
 let wkOff = 0;
 let mBase = null, mId = null;
 let scriptBase = null, scriptId = null;
@@ -580,10 +622,10 @@ let TASKS=[];
 let taskFilter='pending';
 let editTaskId=null;
 let taskCandBase=null,taskCandId=null;
-let SORT={hf:'newest',lucas:'newest',victor:'newest'};
-let LIDER_FILTER={hf:'',lucas:'',victor:''};
-let QF={hf:'',lucas:'',victor:''};
-let DATE_FILTER={hf:'',lucas:'',victor:''};
+let SORT={hf:'newest',lucas:'newest',victor:'newest',larissa:'newest'};
+let LIDER_FILTER={hf:'',lucas:'',victor:'',larissa:''};
+let QF={hf:'',lucas:'',victor:'',larissa:''};
+let DATE_FILTER={hf:'',lucas:'',victor:'',larissa:''};
 
 // ── FIREBASE ─────────────────────────────────────
 async function fbSave(b) {
@@ -603,8 +645,8 @@ function fbListen(b) {
   });
 }
 async function fbLoadAll() {
-  const raw = {hf:RAW_HF, lucas:RAW_LUCAS, victor:RAW_VICTOR};
-  for (const b of ['hf','lucas','victor']) {
+  const raw = {hf:RAW_HF, lucas:RAW_LUCAS, victor:RAW_VICTOR, larissa:RAW_LARISSA};
+  for (const b of ['hf','lucas','victor','larissa']) {
     try {
       const snap = await getDoc(doc(db,'bases',b));
       if (snap.exists()) {
@@ -619,7 +661,7 @@ async function fbLoadAll() {
   }
   try{const ts=await getDoc(doc(db,'config','tasks'));if(ts.exists())TASKS=JSON.parse(ts.data().data);}catch(e){TASKS=[];}
   document.getElementById('loading-ov').style.display='none';
-  for(const b of ['hf','lucas','victor'])fbListen(b);
+  for(const b of ['hf','lucas','victor','larissa'])fbListen(b);
   renderDash();renderTasksBadge();
 }
 
@@ -686,6 +728,7 @@ function getLider(c, b) {
   if(b==='hf'){const found=LEADERS.find(l=>l.name===(c.lider_reuniao||''));return found||LEADERS.find(l=>l.id==='hugo');}
   if(b==='lucas') return LEADERS.find(l=>l.id==='lucas');
   if(b==='victor') return LEADERS.find(l=>l.id==='victor');
+  if(b==='larissa') return LEADERS.find(l=>l.id==='larissa');
   return null;
 }
 
@@ -817,7 +860,7 @@ function renderPanel(b,id){
   const tel=(c.telefone||'').replace(/\D/g,'');
   const li=c.linkedin||'';
   const ldr=getLider(c,b);
-  const ldrName=ldr?ldr.name:(b==='lucas'?'Lucas':'Victor');
+  const ldrName=ldr?ldr.name:(b==='lucas'?'Lucas':b==='larissa'?'Larissa':'Victor');
 
   // Status buttons
   const stBtns=[
@@ -931,7 +974,7 @@ function openWA(b,id,type){
   waBase=b;waId=id;waType=type;
   const c=DB[b].find(x=>x.id===id);
   if(!c)return;
-  const ldr=getLider(c,b)||{name:b==='lucas'?'Lucas':'Victor',link_f1:'',link_pbi:''};
+  const ldr=getLider(c,b)||{name:b==='lucas'?'Lucas':b==='larissa'?'Larissa':'Victor',link_f1:'',link_pbi:''};
   const nome=c.nome.split(' ')[0];
   const per=period();
   let extra='',preview='';
@@ -958,6 +1001,9 @@ function openWA(b,id,type){
       preview=buildPBIMsgHF(ldr,nome,c,'terça');
     } else if(b==='lucas'){
       preview='Olá, '+c.nome+'! Tudo bem?\nComo conversamos, segue o link da reunião de quarta-feira, referente as informações da oportunidade na Metlife através do app Zoom.\n*Horário: 19h*\n*Sugestão de vestimenta: Social.*\nCaso você tenha algum imprevisto me avise com antecedência por gentileza.\nQuando acabar a reunião me da um Feedback do que achou, tudo bem?\nAguardo seu retorno.\nLink PBI:\n'+ldr.link_pbi;
+      extra='';
+    } else if(b==='larissa'){
+      preview='Olá, '+c.nome+'! Tudo bem?\nComo conversamos, segue o link do PBI de quarta-feira, referente às informações da oportunidade na Metlife através do app Zoom, com a Deise.\n*Horário: 18h30 às 20h*\n*Sugestão de vestimenta: Social.*\n*Câmera aberta durante toda a reunião.*\nCaso você tenha algum imprevisto me avise com antecedência por gentileza.\nQuando acabar a reunião me dá um feedback do que achou, tudo bem?\nAguardo seu retorno.\nLink PBI:\n'+ldr.link_pbi;
       extra='';
     } else {
       preview='Olá, '+c.nome+'! Tudo bem?\nComo conversamos, segue o link da reunião de hoje referente as informações da oportunidade na Metlife através do app Zoom.\n*Horário: 19h*\n*Sugestão de vestimenta: Social.*\nCaso você tenha algum imprevisto me avise com antecedência por gentileza.\nQuando acabar a reunião me da um Feedback do que achou, tudo bem?\nAguardo seu retorno.\nLink PBI:\n'+ldr.link_pbi;
@@ -1355,11 +1401,11 @@ function renderHoje(){
   var el=document.getElementById('hoje-content');
   if(!el)return;
   var meetings=[];
-  var basemap={hf:DB.hf,lucas:DB.lucas,victor:DB.victor};
+  var basemap={hf:DB.hf,lucas:DB.lucas,victor:DB.victor,larissa:DB.larissa};
   Object.keys(basemap).forEach(function(bid){
     (basemap[bid]||[]).forEach(function(c){
       var ldr=getLider(c,bid);
-      var ldrName=ldr?ldr.name:(bid==='lucas'?'Lucas':'Victor');
+      var ldrName=ldr?ldr.name:(bid==='lucas'?'Lucas':bid==='larissa'?'Larissa':'Victor');
       if(normDate(c.data_reuniao)===today&&stCode(c)==='ag')
         meetings.push({type:'F1',cand:c,ldr:ldr,ldrName:ldrName,hora:c.hora_reuniao||'',bid:bid});
       if(normDate(c.data_pbi)===today&&c.tem_pbi)
@@ -1419,6 +1465,9 @@ function buildPBIMsg(ldr,c,dias){
   }
   if(ldr.id==='victor'){
     return'Ola '+c.nome+'! Tudo bem?\nComo conversamos, segue o link da reuniao de hoje referente as informacoes da oportunidade na Metlife atraves do app Zoom.\n*Horario: 19h*\n*Sugestao de vestimenta: Social.*\nCaso voce tenha algum imprevisto me avise com antecedencia por gentileza.\nQuando acabar a reuniao me da um Feedback do que achou, tudo bem?\nAguardo seu retorno.\nLink PBI:\n'+ldr.link_pbi;
+  }
+  if(ldr.id==='larissa'){
+    return'Ola '+c.nome+'! Tudo bem?\nComo conversamos, segue o link do PBI de quarta-feira, referente as informacoes da oportunidade na Metlife atraves do app Zoom, com a Deise.\n*Horario: 18h30 as 20h*\n*Sugestao de vestimenta: Social.*\n*Camera aberta durante toda a reuniao.*\nCaso voce tenha algum imprevisto me avise com antecedencia por gentileza.\nQuando acabar a reuniao me da um Feedback do que achou, tudo bem?\nAguardo seu retorno.\nLink PBI:\n'+ldr.link_pbi;
   }
   // Hugo/Felipe
   var d=dias||'terca';
@@ -1487,12 +1536,23 @@ function openVictorPBI(candId,bid){
 window.openVictorPBI=openVictorPBI;
 window.renderHoje=renderHoje;
 window.buildPBIMsg=buildPBIMsg;
+window.exportBackup=function(){
+  try{
+    var out={exportado_em:new Date().toISOString(),bases:DB,tarefas:TASKS};
+    var blob=new Blob([JSON.stringify(out,null,1)],{type:'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='backup-recrutamento-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+  }catch(e){alert('Nao foi possivel gerar o backup: '+e.message);}
+};
 
 
 function getMeetingsToday(){
   var today=new Date().toISOString().slice(0,10);
   var meetings=[];
-  var basemap={hf:DB.hf,lucas:DB.lucas,victor:DB.victor};
+  var basemap={hf:DB.hf,lucas:DB.lucas,victor:DB.victor,larissa:DB.larissa};
   Object.keys(basemap).forEach(function(bid){
     (basemap[bid]||[]).forEach(function(c){
       var ldr=getLider(c,bid);
@@ -1509,7 +1569,7 @@ function getMeetingsToday(){
 }
 function getPBIsThisWeek(){
   var pbis=[];
-  var basemap={hf:DB.hf,lucas:DB.lucas,victor:DB.victor};
+  var basemap={hf:DB.hf,lucas:DB.lucas,victor:DB.victor,larissa:DB.larissa};
   Object.keys(basemap).forEach(function(bid){
     (basemap[bid]||[]).forEach(function(c){
       var ldr=getLider(c,bid);
@@ -1777,9 +1837,9 @@ window.rejectCandidate=rejectCandidate;
 window.checkApprovalMode=checkApprovalMode;
 
 // ── TABS ─────────────────────────────────────────
-const PAGES=['dash','hoje','hf','lucas','victor','tasks'];
+const PAGES=['dash','hoje','hf','lucas','victor','larissa','tasks'];
 function goTo(p){
-  document.querySelectorAll('.nav-tab').forEach((el,i)=>el.classList.toggle('active',PAGES[i]===p));
+  document.querySelectorAll('.nav-tab').forEach(el=>{var m=(el.getAttribute('onclick')||'').match(/goTo\('(\w+)'\)/);el.classList.toggle('active',!!m&&m[1]===p);});
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('pg-'+p).classList.add('active');
   if(p==='tasks'){renderTasks();return;}
